@@ -83,17 +83,15 @@ along with this program.
             </template>
           </select>
         </div>
-        <!-- it might not stay here but im just gonna slap the image field at the top for now -->
-        <div x-data="imageUploader">
-          <input type="file" @change="imageFile = $event.target.files[0]" accept="image/*">
-          <!-- this button will get removed cuz the image will just go into the total character sheet packet in the end -->
-          <button @click="sendImage">test image upload</button>
-        </div>
         <div x-show="hasSelected && pickNew">
           <div class="input-group w3-margin-top">
-            <input required="" type="text" name="text" autocomplete="off" class="input">
+            <input required="" type="text" name="playerName" autocomplete="off" class="input">
             <label class="user-label">Character Name</label>
           </div>
+        <div x-data="imageUploader" x-bind:playerName="playerName">
+          <input type="file" @change="imageFile = $event.target.files[0]" accept="image/*">
+          <button @click="sendImage">Submit Character Image Upload</button>
+        </div>
           <!--Race-->
           <div x-data="{ races: ['Dwarf', 'Elf', 'Halfling', 'Human', 'Dragonborn', 
           'Gnome', 'Half-Elf', 'Half-Orc', 'Tiefling'] }" class="input-group w3-margin-top">
@@ -106,7 +104,6 @@ along with this program.
             </select>
             <label class="user-label">Race</label>
           </div>
-          
           <!--Class-->
           <div x-data="{ classes: ['Artificer', 'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 
           'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'] }" class="input-group w3-margin-top">
