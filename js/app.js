@@ -117,7 +117,7 @@ document.addEventListener('alpine:init', () => {
         const reader = new FileReader();
         reader.onload = () => {
           // idk if this is the best way but this apparently removes the header
-          // from the data header at [0] and data at [1]
+          // from the data. The header is at [0] and the data is at [1]
           const imageData = reader.result.split(',');
           const jsonMessage = JSON.stringify({ type: 'sendImage', header: imageData[0], raw: imageData[1]});
           this.$store.socket.sendMessage(jsonMessage);
