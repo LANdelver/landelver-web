@@ -83,6 +83,12 @@ along with this program.
             </template>
           </select>
         </div>
+        <!-- it might not stay here but im just gonna slap the image field at the top for now -->
+        <div x-data="imageUploader">
+          <input type="file" @change="imageFile = $event.target.files[0]" accept="image/*">
+          <!-- this button will get removed cuz the image will just go into the total character sheet packet in the end -->
+          <button @click="sendImage">test image upload</button>
+        </div>
         <div x-show="hasSelected && pickNew">
           <div class="input-group w3-margin-top">
             <input required="" type="text" name="text" autocomplete="off" class="input">

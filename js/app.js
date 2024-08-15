@@ -110,6 +110,26 @@ document.addEventListener('alpine:init', () => {
     },
   }));
 
+  Alpine.data ('imageUploader', () => ({
+    imageFile: null,
+    sendImage() {
+      if (this.imageFile) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          // idk if this is the best way but this apparently removes the header
+          // from the data. The header is at [0] and the data is at [1]
+          const imageData = reader.result.split(',');
+          const jsonMessage = JSON.stringify({ type: 'sendImage', header: imageData[0], raw: imageData[1]});
+          this.$store.socket.sendMessage(jsonMessage);
+
+        }
+
+      } else {
+        alert('need to upload an image');
+      }
+    }
+  }));
+
   // Store to handle the character requests
   Alpine.store('charHandler', {
     existingChars: [],
