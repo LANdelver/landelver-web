@@ -110,19 +110,76 @@ document.addEventListener('alpine:init', () => {
     },
   }));
 
-  Alpine.data ('imageUploader', () => ({
+  // the input form for making a character 
+  Alpine.data ('characterForm', () => ({
     imageFile: null,
-    sendImage() {
+    charName: '',
+    charRace: '',
+    charClass: '',
+    charLevel: null,
+    charAC: null,
+    charHP: null,
+    // these ones are weird cuz of how the html is formatted
+    Strength: null,
+    Dexterity: null,
+    Constitution: null,
+    Intelligence: null,
+    Wisdom: null,
+    Charisma: null,
+    sendCharacter() {
       if (this.imageFile) {
         const reader = new FileReader();
         reader.onload = () => {
           // idk if this is the best way but this apparently removes the header
           // from the data. The header is at [0] and the data is at [1]
           const imageData = reader.result.split(',');
-          const jsonMessage = JSON.stringify({ type: 'sendImage', header: imageData[0], raw: imageData[1]});
+          const jsonMessage = JSON.stringify({ 
+            type: 'sendCharacter', 
+            image: {
+              header: imageData[0], 
+              raw: imageData[1]
+            },
+            character: {
+              name: this.charName,
+              race: this.charRace,
+              class: this.charClass,
+              level: this.charLevel,
+              ability_scores: {
+                  strength: this.Strength,
+                  dexterity: this.Dexterity,
+                  constitution: this.Constitution,
+                  intelligence: this.Intelligence,
+                  wisdom: this.Wisdom,
+                  charisma: this.Charisma
+              },
+              // these are placeholder values
+              // we need to expand the form later
+              saving_throws: {
+                  strength: this.Strength,
+                  dexterity: this.Dexterity,
+                  constitution: this.Constitution,
+                  intelligence: this.Intelligence,
+                  wisdom: this.Wisdom,
+                  charisma: this.Charisma
+              },
+              stats: {
+                  speed: this.charSpeed,
+                  ac: this.charAC,
+                  hp: this.charHP
+              },
+              // unused so far, gonna have to figure out the form 
+              // especially with how tricky spells can be
+              // will likely need a searchable select field to all all those
+              weapons: [],
+              spells: [],
+              proficiencies: []
+            }
+          });
           this.$store.socket.sendMessage(jsonMessage);
 
         }
+
+        reader.readAsDataURL(this.imageFile);
 
       } else {
         alert('need to upload an image');
