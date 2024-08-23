@@ -17,19 +17,31 @@ along with this program.
 
 */
 
-document.addEventListener('alpine:init', () => {
-  
+document.addEventListener("alpine:init", () => {
   /* Store that handles the websocket
   and the communication events for it*/
-  Alpine.store('socket', {
+  Alpine.store("socket", {
     hasConnected: false,
     connectionFailed: false,
     socket: null,
     joinCode: null,
+    code2Ip() {
+      let ipValue = 0;
+      for (let i = 0; i < this.joinCode.length; i++) {
+        // ASCII value of a is 97
+        ipValue = ipValue * 26 + (this.joinCode.charCodeAt(i) - 97);
+      }
+      const byte1 = (ipValue >> 24) & 255;
+      const byte2 = (ipValue >> 16) & 255;
+      const byte3 = (ipValue >> 8) & 255;
+      const byte4 = ipValue & 255;
+
+      return `ws://${byte1}.${byte2}.${byte3}.${byte4}:8765`;
+    },
     connect() {
-      this.socket = new WebSocket(`ws://192.168.1.${this.joinCode}:8765`);
+      this.socket = new WebSocket(this.code2Ip(this.joinCode));
       console.log("socket created");
-      
+
       this.socket.addEventListener("open", (event) => {
         console.log("connection established");
         this.hasConnected = true;
@@ -40,7 +52,7 @@ document.addEventListener('alpine:init', () => {
       });
 
       this.socket.addEventListener("error", (event) => {
-        console.error('WebSocket error:', error);
+        console.error("WebSocket error:", error);
       });
 
       this.socket.addEventListener("close", (event) => {
@@ -52,23 +64,26 @@ document.addEventListener('alpine:init', () => {
     // all outgoing messages need to go thru here
     sendMessage(message) {
       if (this.socket.readyState === WebSocket.OPEN) {
-          this.socket.send(message);
+        this.socket.send(message);
       } else {
-          console.error('WebSocket is not open. Ready state is:', this.connection.readyState);
+        console.error(
+          "WebSocket is not open. Ready state is:",
+          this.connection.readyState
+        );
       }
     },
     // all incoming messages need to be delegated here
     handleMessage(message) {
       const data = JSON.parse(message);
-      if (data.type === 'requestChars') {
-        Alpine.store('charHandler').handleCharacterRequest(data);
+      if (data.type === "requestChars") {
+        Alpine.store("charHandler").handleCharacterRequest(data);
       }
     },
   });
 
   /* Data to handle reactivity 
   to the connect button */
-  Alpine.data('connectMessage', () => ({
+  Alpine.data("connectMessage", () => ({
     connecting: false,
     connectClicked() {
       this.connecting = true;
@@ -79,25 +94,25 @@ document.addEventListener('alpine:init', () => {
 
   /* Data for the user upon login
   handles if they select player or dm*/
-  Alpine.data('user', () => ({
+  Alpine.data("user", () => ({
     hasSelected: false,
     isPlayer: false,
     choosePlayer() {
       this.hasSelected = true;
       this.isPlayer = true;
-      console.log('requesting characters');
-      const jsonMessage = JSON.stringify({ type: 'requestChars', content: '' });
-      this.$store.socket.sendMessage(jsonMessage); 
+      console.log("requesting characters");
+      const jsonMessage = JSON.stringify({ type: "requestChars", content: "" });
+      this.$store.socket.sendMessage(jsonMessage);
     },
     chooseDm() {
       this.hasSelected = true;
       this.isPlayer = false;
-    }
+    },
   }));
 
   /* Data for the new/existing
   character menu selection */
-  Alpine.data('charMenu', () => ({
+  Alpine.data("charMenu", () => ({
     hasSelected: false,
     pickNew: false,
     chooseNew() {
@@ -110,12 +125,13 @@ document.addEventListener('alpine:init', () => {
     },
   }));
 
-  // the input form for making a character 
-  Alpine.data ('characterForm', () => ({
+  // the input form for making a character
+  Alpine.data("characterForm", () => ({
+    formPage: 1,
     imageFile: null,
-    charName: '',
-    charRace: '',
-    charClass: '',
+    charName: "",
+    charRace: "",
+    charClass: "",
     charLevel: null,
     charAC: null,
     charHP: null,
@@ -126,18 +142,21 @@ document.addEventListener('alpine:init', () => {
     Intelligence: null,
     Wisdom: null,
     Charisma: null,
+    nextPage() {
+      this.formPage++;
+    },
     sendCharacter() {
       if (this.imageFile) {
         const reader = new FileReader();
         reader.onload = () => {
           // idk if this is the best way but this apparently removes the header
           // from the data. The header is at [0] and the data is at [1]
-          const imageData = reader.result.split(',');
-          const jsonMessage = JSON.stringify({ 
-            type: 'sendCharacter', 
+          const imageData = reader.result.split(",");
+          const jsonMessage = JSON.stringify({
+            type: "sendCharacter",
             image: {
-              header: imageData[0], 
-              raw: imageData[1]
+              header: imageData[0],
+              raw: imageData[1],
             },
             character: {
               name: this.charName,
@@ -145,79 +164,75 @@ document.addEventListener('alpine:init', () => {
               class: this.charClass,
               level: this.charLevel,
               ability_scores: {
-                  strength: this.Strength,
-                  dexterity: this.Dexterity,
-                  constitution: this.Constitution,
-                  intelligence: this.Intelligence,
-                  wisdom: this.Wisdom,
-                  charisma: this.Charisma
+                strength: this.Strength,
+                dexterity: this.Dexterity,
+                constitution: this.Constitution,
+                intelligence: this.Intelligence,
+                wisdom: this.Wisdom,
+                charisma: this.Charisma,
               },
               // these are placeholder values
               // we need to expand the form later
               saving_throws: {
-                  strength: this.Strength,
-                  dexterity: this.Dexterity,
-                  constitution: this.Constitution,
-                  intelligence: this.Intelligence,
-                  wisdom: this.Wisdom,
-                  charisma: this.Charisma
+                strength: this.Strength,
+                dexterity: this.Dexterity,
+                constitution: this.Constitution,
+                intelligence: this.Intelligence,
+                wisdom: this.Wisdom,
+                charisma: this.Charisma,
               },
               stats: {
-                  speed: this.charSpeed,
-                  ac: this.charAC,
-                  hp: this.charHP
+                speed: this.charSpeed,
+                ac: this.charAC,
+                hp: this.charHP,
               },
-              // unused so far, gonna have to figure out the form 
+              // unused so far, gonna have to figure out the form
               // especially with how tricky spells can be
               // will likely need a searchable select field to all all those
               weapons: [],
               spells: [],
-              proficiencies: []
-            }
+              proficiencies: [],
+            },
           });
           this.$store.socket.sendMessage(jsonMessage);
-
-        }
+        };
 
         reader.readAsDataURL(this.imageFile);
-
       } else {
-        alert('need to upload an image');
+        alert("need to upload an image");
       }
-    }
+    },
   }));
 
   // Store to handle the character requests
-  Alpine.store('charHandler', {
+  Alpine.store("charHandler", {
     existingChars: [],
     handleCharacterRequest(data) {
-      console.log('recieved character request');
-      this.existingChars = data.chars; 
-    }
+      console.log("recieved character request");
+      this.existingChars = data.chars;
+    },
   });
 
   // Data for all dropdown fields
-  Alpine.data('dropdownState', () => ({
+  Alpine.data("dropdownState", () => ({
     // ensures the label moves up after being interacted with
     checkSelect(select) {
       if (select.value) {
-        select.classList.add('has-value');
+        select.classList.add("has-value");
       } else {
-        select.classList.remove('has-value');
+        select.classList.remove("has-value");
       }
     },
     init() {
       this.checkSelect(this.$refs.select);
-      
+
       // Ensure label transitions correctly on focus for mobile
-      this.$refs.select.addEventListener('focus', () => {
-        this.$refs.select.classList.add('has-value');
+      this.$refs.select.addEventListener("focus", () => {
+        this.$refs.select.classList.add("has-value");
       });
-      this.$refs.select.addEventListener('blur', () => {
+      this.$refs.select.addEventListener("blur", () => {
         this.checkSelect(this.$refs.select);
       });
-    }
+    },
   }));
-
 });
-
