@@ -25,8 +25,21 @@ document.addEventListener("alpine:init", () => {
     connectionFailed: false,
     socket: null,
     joinCode: null,
+    code2Ip() {
+      let ipValue = 0;
+      for (let i = 0; i < this.joinCode.length; i++) {
+        // ASCII value of a is 97
+        ipValue = ipValue * 26 + (this.joinCode.charCodeAt(i) - 97);
+      }
+      const byte1 = (ipValue >> 24) & 255;
+      const byte2 = (ipValue >> 16) & 255;
+      const byte3 = (ipValue >> 8) & 255;
+      const byte4 = ipValue & 255;
+
+      return `ws://${byte1}.${byte2}.${byte3}.${byte4}`;
+    },
     connect() {
-      this.socket = new WebSocket(`ws://192.168.1.${this.joinCode}:8765`);
+      this.socket = new WebSocket(this.code2Ip(this.joinCode));
       console.log("socket created");
 
       this.socket.addEventListener("open", (event) => {
@@ -114,6 +127,7 @@ document.addEventListener("alpine:init", () => {
 
   // the input form for making a character
   Alpine.data("characterForm", () => ({
+    formPage: 1,
     imageFile: null,
     charName: "",
     charRace: "",
@@ -128,6 +142,9 @@ document.addEventListener("alpine:init", () => {
     Intelligence: null,
     Wisdom: null,
     Charisma: null,
+    nextPage() {
+      this.formPage++;
+    },
     sendCharacter() {
       if (this.imageFile) {
         const reader = new FileReader();

@@ -126,11 +126,15 @@ along with this program.
           </div>
           <div x-data="characterForm" x-show="hasSelected && pickNew">
             <!-- Character creation forms -->
-            <div x-data="tokenImagePage" x-page></div>
-            <div x-data="basicCharInfo" x-page></div>
-            <div x-data="charAbilityScores" x-page></div>
-            <div x-data="charExtraStats" x-page></div>
-            <div x-data="charWeapons" x-page></div>
+            <div x-show="formPage === 1" x-data="tokenImagePage" x-page></div>
+            <div x-show="formPage === 2" x-data="basicCharInfo" x-page></div>
+            <div
+              x-show="formPage === 3"
+              x-data="charAbilityScores"
+              x-page
+            ></div>
+            <div x-show="formPage === 4" x-data="charExtraStats" x-page></div>
+            <div x-show="formPage === 5" x-data="charWeapons" x-page></div>
           </div>
         </div>
       </div>

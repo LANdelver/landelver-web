@@ -30,6 +30,12 @@ document.addEventListener("alpine:init", () => {
             <img id="uploadedImage" src="" alt="Your Image">
           </div>
         </div>
+
+        <div>
+          <button class="button w3-margin-top" x-on:click="nextPage">
+            next
+          </button>
+        </div>
       `;
     },
   }));
@@ -114,6 +120,12 @@ document.addEventListener("alpine:init", () => {
           </select>
           <label class="user-label">Level</label>
         </div>
+        
+        <div>
+          <button class="button w3-margin-top" x-on:click="nextPage">
+            next
+          </button>
+        </div>
       `;
     },
   }));
@@ -152,6 +164,12 @@ document.addEventListener("alpine:init", () => {
             </div>
           </template>
         </div>
+        
+        <div>
+          <button class="button w3-margin-top" x-on:click="nextPage">
+            next
+          </button>
+        </div>
       `;
     },
   }));
@@ -183,6 +201,12 @@ document.addEventListener("alpine:init", () => {
             class="input"
           />
           <label class="user-label">Hit Points</label>
+        </div>
+        
+        <div>
+          <button class="button w3-margin-top" x-on:click="nextPage">
+            next
+          </button>
         </div>
       `;
     },
@@ -260,6 +284,12 @@ document.addEventListener("alpine:init", () => {
             </template>
           </select>
         </div>
+        
+        <div>
+          <button class="button w3-margin-top" x-on:click="nextPage">
+            create character
+          </button>
+        </div>      
       `;
     },
   }));
