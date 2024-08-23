@@ -36,7 +36,7 @@ document.addEventListener("alpine:init", () => {
       const byte3 = (ipValue >> 8) & 255;
       const byte4 = ipValue & 255;
 
-      return `ws://${byte1}.${byte2}.${byte3}.${byte4}`;
+      return `ws://${byte1}.${byte2}.${byte3}.${byte4}:8765`;
     },
     connect() {
       this.socket = new WebSocket(this.code2Ip(this.joinCode));
