@@ -145,6 +145,11 @@ document.addEventListener("alpine:init", () => {
     nextPage() {
       this.formPage++;
     },
+    loadImage(event) {
+      var image = document.getElementById("token-img");
+      image.src = URL.createObjectURL(event.target.files[0]);
+      this.imageFile = event.target.files[0];
+    },
     sendCharacter() {
       if (this.imageFile) {
         const reader = new FileReader();
