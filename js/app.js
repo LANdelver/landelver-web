@@ -146,10 +146,63 @@ document.addEventListener("alpine:init", () => {
       this.formPage++;
     },
     loadImage(event) {
-      var image = document.getElementById("token-img");
-      image.src = URL.createObjectURL(event.target.files[0]);
-      this.imageFile = event.target.files[0];
+      const image = document.getElementById("token-img");
+      const frame = new Image();
+      frame.src = "./css/res/player_border.png";
+
+      // Load the uploaded image
+      const uploadedFile = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        image.src = e.target.result; // Display the uploaded image
+        this.combineImages(e.target.result, frame.src);
+      };
+      reader.readAsDataURL(uploadedFile);
     },
+    combineImages(uploadedImageSrc, frameSrc) {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const size = 128;
+
+      // Set the canvas size to match the images
+      canvas.width = size;
+      canvas.height = size;
+
+      const uploadedImage = new Image();
+      const frameImage = new Image();
+
+      // Set the onload event for the frame first
+      frameImage.onload = () => {
+        // Draw the frame on top of the uploaded image
+        ctx.drawImage(frameImage, 0, 0, size, size);
+
+        // Convert canvas to Blob (or a Data URL)
+        canvas.toBlob((blob) => {
+          // Set the combined image as the new file
+          this.imageFile = new File([blob], "combined-image.png", {
+            type: "image/png",
+          });
+        }, "image/png");
+      };
+
+      uploadedImage.onload = () => {
+        // Apply circular clipping mask
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.clip();
+
+        // Draw the uploaded image inside the clipped circle
+        ctx.drawImage(uploadedImage, 0, 0, size, size);
+
+        // Set the frame image source after setting the onload
+        frameImage.src = frameSrc;
+      };
+
+      // Set the uploaded image source after setting its onload
+      uploadedImage.src = uploadedImageSrc;
+    },
+
     sendCharacter() {
       if (this.imageFile) {
         const reader = new FileReader();
