@@ -20,16 +20,69 @@ along with this program.
 document.addEventListener("alpine:init", () => {
   // Character token image page
   Alpine.data("tokenImagePage", () => ({
+    styles() {
+      return `
+        .profile-pic {
+          color: transparent;
+          transition: all .3s ease;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          position: relative;
+          transition: all .3s ease;
+          
+          input {
+            display: none;
+          }
+          
+          img {
+            position: absolute;
+            object-fit: cover;
+            width: 128px;
+            height: 128px;
+            border-radius: 128px;
+            z-index: 0;
+          }
+          
+          .-label {
+            cursor: pointer;
+            height: 128px;
+            width: 128px;
+          }
+          
+          &:hover {
+            .-label {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              background-color: rgba(0,0,0,.8);
+              z-index: 10000;
+              color: rgb(250, 250, 250);
+              transition: background-color .2s ease-in-out;
+              border-radius: 128px;
+              margin-bottom: 0;
+            }
+          }
+          
+          span {
+            display: inline-flex;
+            padding: .2em;
+            height: 2em;
+          }
+        }
+      `;
+    },
     page() {
       return `
-        <input type="file" @change="imageFile = $event.target.files[0]" accept="image/*">
-        <button @click="sendCharacter">test image upload</button>
-        <div class="image-uploader">
-          <input type="file" id="upload" accept="image/*">
-          <div class="image-frame">
-            <img id="uploadedImage" src="" alt="Your Image">
-          </div>
-        </div>
+        <div class="profile-pic">
+          <label class="-label" for="file">
+            <span class="glyphicon glyphicon-camera"></span>
+            <span>Change Image</span>
+          </label>
+          <input id="file" type="file" @change="loadImage(event)"/>
+          <img class="icon" src="" id="token-img" width="128" />
+          <img src="./css/res/player_border.png" width="128"/>
+        </div> 
 
         <div>
           <button class="button w3-margin-top" x-on:click="nextPage">
@@ -286,7 +339,7 @@ document.addEventListener("alpine:init", () => {
         </div>
         
         <div>
-          <button class="button w3-margin-top" x-on:click="nextPage">
+          <button class="button w3-margin-top" x-on:click="sendCharacter">
             create character
           </button>
         </div>      
