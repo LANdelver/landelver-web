@@ -128,6 +128,9 @@ document.addEventListener("alpine:init", () => {
   // the input form for making a character
   Alpine.data("characterForm", () => ({
     formPage: 1,
+    // for testing rn
+    spellQuery: "",
+    testSpells: ["fireball", "eldrich blast", "magic missile", "firebolt", "acid splash"],
     imageFile: null,
     charName: "",
     charRace: "",
@@ -142,6 +145,19 @@ document.addEventListener("alpine:init", () => {
     Intelligence: null,
     Wisdom: null,
     Charisma: null,
+    charSpells: [],
+    addSpell() {
+      if (this.testSpells.includes(this.spellQuery)) {
+        this.charSpells.push(this.spellQuery);
+        this.spellQuery = "";
+      }
+    },
+    isSearchMatch(spell) {
+      if (this.spellQuery === spell.substring(0, this.spellQuery.length)) {
+        return true;
+      }
+      return false;
+    },
     nextPage() {
       this.formPage++;
     },

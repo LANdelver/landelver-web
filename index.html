@@ -18,126 +18,113 @@ along with this program.
 
 <!DOCTYPE html>
 <html>
-  <head>
-    <script src="js/app.js"></script>
-    <script src="js/new_character.js"></script>
-    <script
-      defer
-      src="https://unpkg.com/alpinejs-pages@latest/dist/pages.min.js"
-    ></script>
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-    ></script>
-    <title>LANdelver</title>
-    <link rel="icon" type="image/x-icon" href="css/res/favicon.ico" />
-    <link rel="stylesheet" href="css/app.css" />
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no"
-    />
-  </head>
 
-  <!-- the body background will change based on if we have connected yet -->
-  <body class="">
-    <!-- Loading page content -->
-    <div x-data x-show="!$store.socket.hasConnected" x-transition>
-      <div class="loading-title">
-        <p>&LANdelver</p>
+<head>
+  <script src="js/app.js"></script>
+  <script src="js/new_character.js"></script>
+  <script defer src="https://unpkg.com/alpinejs-pages@latest/dist/pages.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <title>LANdelver</title>
+  <link rel="icon" type="image/x-icon" href="css/res/favicon.ico" />
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+</head>
+
+<!-- the body background will change based on if we have connected yet -->
+
+<body class="">
+  <!-- Loading page content -->
+  <div x-data x-show="!$store.socket.hasConnected" x-transition>
+    <div class="loading-title">
+      <p>&LANdelver</p>
+    </div>
+    <div class="input-group w3-margin-top">
+      <input required="" type="text" name="text" autocomplete="off" class="input" x-model="$store.socket.joinCode" />
+      <label class="user-label">Join Code</label>
+    </div>
+    <div x-data="connectMessage">
+      <div>
+        <button class="button w3-margin-top" x-on:click="connectClicked()">
+          connect
+        </button>
       </div>
-      <div class="input-group w3-margin-top">
-        <input
-          required=""
-          type="text"
-          name="text"
-          autocomplete="off"
-          class="input"
-          x-model="$store.socket.joinCode"
-        />
-        <label class="user-label">Join Code</label>
+      <p class="connection-message" x-init="$watch('$store.socket.connectionFailed', value => connecting = !value)"
+        x-show="connecting">
+        connecting...
+      </p>
+      <p class="connection-message" x-show="$store.socket.connectionFailed">
+        connection failed
+      </p>
+    </div>
+  </div>
+
+  <!-- User space content -->
+  <div x-data="user" x-show="$store.socket.hasConnected" x-transition>
+    <div class="w3-bar topbar">
+      <p>LANdelver</p>
+    </div>
+
+    <div x-show="!hasSelected" x-transition>
+      <div>
+        <button class="button w3-margin-top" x-on:click="choosePlayer()">
+          player
+        </button>
       </div>
-      <div x-data="connectMessage">
-        <div>
-          <button class="button w3-margin-top" x-on:click="connectClicked()">
-            connect
-          </button>
-        </div>
-        <p
-          class="connection-message"
-          x-init="$watch('$store.socket.connectionFailed', value => connecting = !value)"
-          x-show="connecting"
-        >
-          connecting...
-        </p>
-        <p class="connection-message" x-show="$store.socket.connectionFailed">
-          connection failed
-        </p>
+
+      <div>
+        <button class="button w3-margin-top" x-on:click="chooseDm()">
+          dungeon master
+        </button>
       </div>
     </div>
 
-    <!-- User space content -->
-    <div x-data="user" x-show="$store.socket.hasConnected" x-transition>
-      <div class="w3-bar topbar">
-        <p>LANdelver</p>
-      </div>
+    <!-- DM options-->
+    <div x-show="hasSelected && !isPlayer">
+      <select class="select" name="campaignSelect" id="campaignSelect">
+        <option value="" disabled selected>Choose Campaign</option>
+      </select>
+    </div>
 
-      <div x-show="!hasSelected" x-transition>
-        <div>
-          <button class="button w3-margin-top" x-on:click="choosePlayer()">
-            player
-          </button>
+    <!-- Player Options -->
+    <div x-show="hasSelected && isPlayer">
+      <div x-data="charMenu" x-on:requestChars="handleCharacterRequest($event.detail)">
+        <button x-show="!hasSelected" class="button w3-margin-top" x-on:click="chooseNew()">
+          New Character
+        </button>
+        <div x-show="!hasSelected" class="input-group w3-margin-top">
+          <select class="select" name="charSelect" id="charSelect">
+            <option value="" disabled selected>Choose Character</option>
+            <template x-for="char in $store.charHandler.existingChars">
+              <option x-bind:value="char" x-text="char"></option>
+            </template>
+          </select>
         </div>
-
-        <div>
-          <button class="button w3-margin-top" x-on:click="chooseDm()">
-            dungeon master
-          </button>
-        </div>
-      </div>
-
-      <!-- DM options-->
-      <div x-show="hasSelected && !isPlayer">
-        <select class="select" name="campaignSelect" id="campaignSelect">
-          <option value="" disabled selected>Choose Campaign</option>
-        </select>
-      </div>
-
-      <!-- Player Options -->
-      <div x-show="hasSelected && isPlayer">
-        <div
-          x-data="charMenu"
-          x-on:requestChars="handleCharacterRequest($event.detail)"
-        >
-          <button
-            x-show="!hasSelected"
-            class="button w3-margin-top"
-            x-on:click="chooseNew()"
-          >
-            New Character
-          </button>
-          <div x-show="!hasSelected" class="input-group w3-margin-top">
-            <select class="select" name="charSelect" id="charSelect">
-              <option value="" disabled selected>Choose Character</option>
-              <template x-for="char in $store.charHandler.existingChars">
-                <option x-bind:value="char" x-text="char"></option>
-              </template>
-            </select>
+        <div x-data="characterForm" x-show="hasSelected && pickNew">
+          <!-- Character creation forms -->
+          <div x-show="formPage === 1" x-data="tokenImagePage" x-page></div>
+          <div x-show="formPage === 2" x-data="basicCharInfo" x-page></div>
+          <div x-show="formPage === 3" x-data="charAbilityScores" x-page></div>
+          <div x-show="formPage === 4" x-data="charExtraStats" x-page></div>
+          <div x-show="formPage === 5">
+            <div class="input-group w3-margin-top">
+              <input x-model="spellQuery" required="" type="text" name="text" autocomplete="off" class="input" />
+              <label class="user-label">Add Spells</label>
+            </div>
+            <template x-for="spell in testSpells">
+              <h2 x-show="isSearchMatch(spell)" x-text="spell"></h2>
+            </template>
+            <div>
+              <button class="button w3-margin-top" x-on:click="addSpell">
+                add spell
+              </button>
+            </div>
           </div>
-          <div x-data="characterForm" x-show="hasSelected && pickNew">
-            <!-- Character creation forms -->
-            <div x-show="formPage === 1" x-data="tokenImagePage" x-page></div>
-            <div x-show="formPage === 2" x-data="basicCharInfo" x-page></div>
-            <div
-              x-show="formPage === 3"
-              x-data="charAbilityScores"
-              x-page
-            ></div>
-            <div x-show="formPage === 4" x-data="charExtraStats" x-page></div>
-            <div x-show="formPage === 5" x-data="charWeapons" x-page></div>
-          </div>
+          <div x-show="formPage === 6" x-data="charWeapons" x-page></div>
         </div>
       </div>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>
