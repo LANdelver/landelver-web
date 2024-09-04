@@ -129,8 +129,6 @@ document.addEventListener("alpine:init", () => {
   Alpine.data("characterForm", () => ({
     formPage: 1,
     // for testing rn
-    spellQuery: "",
-    testSpells: ["fireball", "eldrich blast", "magic missile", "firebolt", "acid splash"],
     imageFile: null,
     charName: "",
     charRace: "",
@@ -145,15 +143,69 @@ document.addEventListener("alpine:init", () => {
     Intelligence: null,
     Wisdom: null,
     Charisma: null,
-    charSpells: [],
+    spellAddQuery: "",
+    spellRemoveQuery:"",
+    testSpells: [],
+    pickedSpells: [],
+    getApiSpells(){
+      const myHeaders = new Headers();
+      myHeaders.append("Accept", "application/json");
+
+      const requestOptions = {
+        method: "GET",
+        headers: myHeaders,
+        redirect: "follow"
+      };
+
+      fetch("https://www.dnd5eapi.co/api/spells", requestOptions)
+        .then((response) => {
+          console.log('API response received');
+          return response.json(); 
+        })
+        .then((data) => {
+          console.log('Parsed data:', data);
+
+          this.testSpells = data.results.map(spell => spell.name.trim());
+          // testSpells = testSpells.replace(/^"+|"+$/g, '');
+          console.log('Extracted spell names:', this.testSpells);
+        })
+        .catch((error) => {
+          console.error('Error fetching spells:', error);
+    });
+    },
     addSpell() {
-      if (this.testSpells.includes(this.spellQuery)) {
-        this.charSpells.push(this.spellQuery);
-        this.spellQuery = "";
+      const lowQuery = this.spellAddQuery.toLowerCase();
+      const lowSpellFound = this.testSpells.find(spell => spell.toLowerCase() === lowQuery);
+      if (lowSpellFound) {
+          this.pickedSpells.push(lowSpellFound);
+          this.spellAddQuery = "";
       }
     },
-    isSearchMatch(spell) {
-      if (this.spellQuery === spell.substring(0, this.spellQuery.length)) {
+    removeSpell() {
+      const lowQuery = this.spellRemoveQuery.toLowerCase();
+      const lowSpellFound = this.testSpells.find(spell => spell.toLowerCase() === lowQuery);
+      if (lowSpellFound) {
+        const spellIndex = this.pickedSpells.findIndex(spell => spell.toLowerCase() === lowQuery);
+        if (spellIndex !== -1) {
+          this.pickedSpells.splice(spellIndex, 1);
+        }
+        this.spellRemoveQuery = "";
+      }
+    },
+    isAddSearchMatch(spell) {
+      if (this.spellAddQuery === spell.substring(0, this.spellAddQuery.length)) {
+        return true;
+      }
+      else if (this.spellAddQuery === spell.substring(0, this.spellAddQuery.length).toLowerCase()) {
+        return true;
+      }
+      return false;
+    },
+    isRemoveSearchMatch(spell) {
+      if (this.spellRemoveQuery === spell.substring(0, this.spellRemoveQuery.length)) {
+        return true;
+      }
+      else if (this.spellRemoveQuery === spell.substring(0, this.spellRemoveQuery.length).toLowerCase()) {
         return true;
       }
       return false;
