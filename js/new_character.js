@@ -297,4 +297,48 @@ document.addEventListener("alpine:init", () => {
       `;
     },
   }));
+
+  Alpine.data("charSpells", () => ({
+    page() {
+      return `
+      <div class="input-group w3-margin-top">
+      <div x-init="getApiSpells">
+              <input x-model="spellAddQuery" required="" type="text" name="text" autocomplete="off" class="input" />
+                <label class="user-label">Add Spells</label>
+            </div>
+                <template x-for="spell in testSpells">
+                  <h2 x-show="isAddSearchMatch(spell)" x-text="spell"></h2>
+                </template>
+                <div>
+                  <button class="button w3-margin-top" x-on:click="addSpell">
+                    add spell
+                  </button>
+                  <div>
+                  <div class="w3-display-bottommiddle" x-data:"pickedSpells">
+                  </div>
+                </div>
+              </div>
+              </div>
+
+              <div class="input-group w3-margin-top">
+              <input x-model="spellRemoveQuery" required="" type="text" name="text" autocomplete="off" class="input" />
+              <label class="user-label">Remove Spells</label>
+          </div>
+              <template x-for="spell in pickedSpells">
+                <h2 x-show="isRemoveSearchMatch(spell)" x-text="spell"></h2>
+              </template>
+              <div>
+            <button class="button w3-margin-top" x-on:click="removeSpell">
+                    remove spell
+                  </button>
+
+              <div>
+                <button class="button w3-margin-top" x-on:click="nextPage">
+                  next
+                </button>
+              </div> 
+            </div>
+      `;
+    },
+  }));
 });

@@ -106,20 +106,7 @@ along with this program.
           <div x-show="formPage === 2" x-data="basicCharInfo" x-page></div>
           <div x-show="formPage === 3" x-data="charAbilityScores" x-page></div>
           <div x-show="formPage === 4" x-data="charExtraStats" x-page></div>
-          <div x-show="formPage === 5">
-            <div class="input-group w3-margin-top">
-              <input x-model="spellQuery" required="" type="text" name="text" autocomplete="off" class="input" />
-              <label class="user-label">Add Spells</label>
-            </div>
-            <template x-for="spell in testSpells">
-              <h2 x-show="isSearchMatch(spell)" x-text="spell"></h2>
-            </template>
-            <div>
-              <button class="button w3-margin-top" x-on:click="addSpell">
-                add spell
-              </button>
-            </div>
-          </div>
+          <div x-show="formPage === 5" x-data="charSpells" x-page></div>
           <div x-show="formPage === 6" x-data="charWeapons" x-page></div>
         </div>
       </div>
